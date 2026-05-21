@@ -4,3 +4,50 @@ class Notifier(ABC):
     @abstractmethod
     def send(self, message: str, recipient: str):
         pass
+
+
+from notifier_base import Notifier
+
+class EmailNotifier(Notifier):
+    def __init__(self):
+        self.smtp_server = "smtp.proje-team.local"
+
+    def send(self, message: str, recipient: str):
+        print(f"[BAĞLANTI] {self.smtp_server} sunucusuna bağlanılıyor...")
+        print("[FORMAT] Mesaj HTML formatına çevriliyor...")
+        print(f"[GÖNDERİM] Email başarıyla gönderildi -> Alıcı: {recipient}")
+        print(f"[İÇERİK] <h1>{message}</h1>\n")
+
+from notifier_base import Notifier
+
+class SMSNotifier(Notifier):
+    def __init__(self):
+        self.api_key = "PROJE-SMS-KEY-9988"
+
+    def send(self, message: str, recipient: str):
+        print(f"[KİMLİK DOĞRULAMA] SMS API Anahtarı doğrulanıyor: {self.api_key}")
+        if len(message) > 160:
+            print("[UYARI] Mesaj 160 karakterden uzun, bölünüyor...")
+            message = message[:157] + "..."
+        print(f"[GÖNDERİM] SMS başarıyla gönderildi -> Tel: {recipient}")
+        print(f"[İÇERİK] {message}\n")
+
+from notifier_base import Notifier
+
+class PushNotifier(Notifier):
+    def __init__(self):
+        self.auth_token = "firebase-token-12345"
+
+    def send(self, message: str, recipient: str):
+        print(f"[BAĞLANTI] Firebase sunucusuna {self.auth_token} ile bağlanılıyor...")
+        print("[FORMAT] JSON payload'u oluşturuluyor...")
+        print(f"[GÖNDERİM] Mobil cihaza Push Notification iletildi -> Cihaz: {recipient}")
+        print(f"[İÇERİK] {message}\n")
+
+from notifier_base import Notifier
+
+class DiscordNotifier(Notifier):
+    def send(self, message: str, recipient: str):
+        print("[BAĞLANTI] Discord Webhook URL'sine istek atılıyor...")
+        print(f"[GÖNDERİM] Discord kanalına mesaj atıldı -> {recipient}")
+        print(f"[İÇERİK] {message}\n")
