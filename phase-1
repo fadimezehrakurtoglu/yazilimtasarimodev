@@ -51,3 +51,49 @@ class DiscordNotifier(Notifier):
         print("[BAĞLANTI] Discord Webhook URL'sine istek atılıyor...")
         print(f"[GÖNDERİM] Discord kanalına mesaj atıldı -> {recipient}")
         print(f"[İÇERİK] {message}\n")
+
+
+from email_notifier import EmailNotifier
+from sms_notifier import SMSNotifier
+from push_notifier import PushNotifier
+from discord_notifier import DiscordNotifier
+
+class NotifierFactory:
+    @staticmethod
+    def get_notifier(alert_type: str):
+        notifiers = {
+            "email": EmailNotifier,
+            "sms": SMSNotifier,
+            "push": PushNotifier,
+            "discord": DiscordNotifier
+        }
+        
+        notifier_class = notifiers.get(alert_type)
+        
+        if not notifier_class:
+            raise ValueError(f"[HATA] '{alert_type}' adında bilinmeyen bir bildirim tipi!\n")
+            
+        return notifier_class()
+
+from notifier_factory import NotifierFactory
+
+if __name__ == "__main__":
+    
+    # Başarılı senaryolar
+    test_cases = [
+        ("email", "Haftalık sistem raporu hazır.", "admin@proje-team.com"),
+        ("sms", "ACİL: Sunucu sıcaklığı kritik seviyede!", "+905551234567"),
+        ("push", "Otomatik yedekleme aktifleştirildi.", "sistem_ekrani_01"),
+        ("discord", "Yeni log kayıtları sisteme yüklendi.", "#yazilim-loglari")
+    ]
+
+    for alert_type, message, recipient in test_cases:
+        notifier = NotifierFactory.get_notifier(alert_type)
+        notifier.send(message, recipient)
+
+    # Desteklenmeyen (Hatalı) tür denemesi
+    try:
+        telegram_notifier = NotifierFactory.get_notifier("telegram")
+        telegram_notifier.send("Bu bildirim gitmeyecek.", "@kullanici")
+    except ValueError as e:
+        print(e)
