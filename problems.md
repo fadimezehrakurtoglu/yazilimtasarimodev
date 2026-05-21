@@ -1,3 +1,51 @@
+class NotificationSystem:
+    def __init__(self):
+        self.email_smtp_server = "smtp.proje-team.local"
+        self.sms_api_key = "PROJE-SMS-KEY-9988"
+        self.push_auth_token = "firebase-token-12345"
+
+    def send_alert(self, alert_type, message, recipient):
+        if alert_type == "email":
+            print(f"[BAĞLANTI] {self.email_smtp_server} sunucusuna bağlanılıyor...")
+            print("[FORMAT] Mesaj HTML formatına çevriliyor...")
+            print(f"[GÖNDERİM] Email başarıyla gönderildi -> Alıcı: {recipient}")
+            print(f"[İÇERİK] <h1>{message}</h1>\n")
+
+        elif alert_type == "sms":
+            print(f"[KİMLİK DOĞRULAMA] SMS API Anahtarı doğrulanıyor: {self.sms_api_key}")
+            if len(message) > 160:
+                print("[UYARI] Mesaj 160 karakterden uzun, bölünüyor...")
+                message = message[:157] + "..."
+            print(f"[GÖNDERİM] SMS başarıyla gönderildi -> Tel: {recipient}")
+            print(f"[İÇERİK] {message}\n")
+
+        elif alert_type == "push":
+            print(f"[BAĞLANTI] Firebase sunucusuna {self.push_auth_token} ile bağlanılıyor...")
+            print("[FORMAT] JSON payload'u oluşturuluyor...")
+            print(f"[GÖNDERİM] Mobil cihaza Push Notification iletildi -> Cihaz: {recipient}")
+            print(f"[İÇERİK] {message}\n")
+
+        elif alert_type == "discord":
+            print("[BAĞLANTI] Discord Webhook URL'sine istek atılıyor...")
+            print(f"[GÖNDERİM] Discord kanalına mesaj atıldı -> {recipient}")
+            print(f"[İÇERİK] {message}\n")
+
+        else:
+            print(f"[HATA] '{alert_type}' adında bilinmeyen bir bildirim tipi!\n")
+
+
+
+if __name__ == "__main__":
+    system = NotificationSystem()
+
+    system.send_alert("email", "Haftalık sistem raporu hazır.", "admin@proje-team.com")
+    system.send_alert("sms", "ACİL: Sunucu sıcaklığı kritik seviyede!", "+905551234567")
+    system.send_alert("push", "Otomatik yedekleme aktifleştirildi.", "sistem_ekrani_01")
+    system.send_alert("discord", "Yeni log kayıtları sisteme yüklendi.", "#yazilim-loglari")
+
+    system.send_alert("telegram", "Bu bildirim gitmeyecek.", "@kullanici")
+
+
 Tespit edilen tasarım sorunları
 
 1. Tek Sorumluluk İhlali (God Class)
