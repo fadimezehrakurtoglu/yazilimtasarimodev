@@ -97,3 +97,47 @@ if __name__ == "__main__":
         telegram_notifier.send("Bu bildirim gitmeyecek.", "@kullanici")
     except ValueError as e:
         print(e)
+
+
+
+#AI REVİEW
+İyi yapılanlar
+Soyut sınıf
+Notifier ABC doğru tanımlanmış
+ABC ve @abstractmethod kullanımı yerinde. Her concrete sınıf send() metodunu uygulamak zorunda — bu sözleşme çalışıyor.
+
+Ayrı dosyalar
+Her notifier kendi modülünde
+Faz 0'da hepsi tek sınıftaydı. Şimdi email_notifier.py, sms_notifier.py gibi ayrı dosyalar var — tek sorumluluk ilkesi uygulanmış.
+
+if-else yok
+Factory dict tabanlı dispatch kullanıyor
+if-else zinciri yerine sözlük kullanman çok daha temiz. Yeni kanal eklemek için sadece dict'e bir satır eklenir, metoda dokunulmaz.
+
+Hata yönetimi
+ValueError fırlatılıyor, sessiz hata yok
+Faz 0'da bilinmeyen tip geldiğinde sadece print("[HATA]...") vardı ve program devam ediyordu. Şimdi ValueError fırlatıyorsun — çağıran kod bunu yakalayabilir.
+
+Dikkat edilmesi gerekenler
+Kritik — puan etkiler
+Bu aslında Simple Factory — Factory Method değil
+Uyguladığın pattern Simple Factory (statik metod, nesne döndürür). Gerçek Factory Method pattern'inde soyut bir create_notifier() metodu olan base class olur, alt sınıflar bunu override eder. Ödev "Creational pattern" istiyor — Simple Factory kabul görebilir ama PATTERNS.md'ye bu farkı yazman ve neden Simple Factory seçtiğini gerekçelendirmen gerekiyor. Yoksa hoca sormadan önce sen açıkla.
+
+Kaldı
+Credential'lar hâlâ sınıfların içinde sabit kodlanmış
+self.api_key = "PROJE-SMS-KEY-9988" — bu Faz 0'dan kalan sorun. Faz 1 bunu çözmek zorunda değil ama PROBLEMS.md'de listelediysen ve çözmediysen tutarsızlık yaratıyor. En azından bir yorum satırı ekle: "DI ile çözülecek".
+
+Küçük
+Type hint dönüş tipi eksik
+get_notifier(alert_type: str) metoduna -> Notifier dönüş tipi eklenebilir. Zorunlu değil ama kod kalitesi puanını etkiler — ödev kriterlerinin %15'i kod kalitesi.
+
+Küçük
+SMSNotifier karakter kırpma mantığı hâlâ içeride
+Bu aslında kötü değil — SMS'e özgü bir davranış, orada durması doğal. Ama ödevde bunu açıklamalısın: "Bu iş mantığı SMSNotifier'a aittir, Factory'ye değil" diye PATTERNS.md'ye bir not düş.
+
+
+# AI Log - Faz 1
+
+* **AI'a Ne Sordum (Prompt):** "Bildirim sistemimdeki God Class sorununu çözmek için Factory Method'u nasıl uygulamalıyım? Bana farklı yaklaşımlar sun." (Bu promptu hem ChatGPT'ye hem de Claude'a sordum).
+* **AI Ne Yanıtladı (Özet):** Her iki yapay zeka da ortak bir `Notifier` arayüzü oluşturmamı önerdi.AI nesne üretimi için daha esnek olan sözlük  yapısını önerdi.
+* **Ben Ne Uyguladım ve Neden:** önerdiği sözlük yapısını daha esnek bulduğum ve Open/Closed prensibine daha çok uyduğu için onu tercih ettim. Ayrıca yapay zekaların önerdiği varsayılan şifreleri/ayarları kullanmak yerine, bu değerleri kapsülleme kurallarına uyarak alt sınıfların içine yerleştirdim.
