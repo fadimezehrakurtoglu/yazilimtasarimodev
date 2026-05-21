@@ -1,0 +1,49 @@
+classDiagram
+    %% Ortak Arayüz (Interface)
+    class Notifier {
+        <<interface>>
+        +send(message: str, recipient: str)
+    }
+
+    %% Somut Sınıflar (Concrete Products)
+    class EmailNotifier {
+        -smtp_server: str
+        +__init__()
+        +send(message: str, recipient: str)
+    }
+
+    class SMSNotifier {
+        -api_key: str
+        +__init__()
+        +send(message: str, recipient: str)
+    }
+
+    class PushNotifier {
+        -auth_token: str
+        +__init__()
+        +send(message: str, recipient: str)
+    }
+
+    class DiscordNotifier {
+        +send(message: str, recipient: str)
+    }
+
+    %% Fabrika Sınıfı (Creator)
+    class NotifierFactory {
+        -_senders: dict
+        +get_notifier(alert_type: str) Notifier
+    }
+
+    %% İstemci (Client)
+    class NotificationSystem {
+        +send_alert(alert_type: str, message: str, recipient: str)
+    }
+
+    %% İlişkiler (Kalıtım ve Bağımlılıklar)
+    Notifier <|.. EmailNotifier : Implements
+    Notifier <|.. SMSNotifier : Implements
+    Notifier <|.. PushNotifier : Implements
+    Notifier <|.. DiscordNotifier : Implements
+
+    NotifierFactory ..> Notifier : Creates / Instantiates
+    NotificationSystem ..> NotifierFactory : Uses
