@@ -1,0 +1,54 @@
+from notifier_base import Notifier
+
+class ExternalWhatsAppAPI:
+    def dispatch_message(self, phone_number: str, text: str):
+        print(f"[WHATSAPP API] Mesaj dış sunucuya iletiliyor: {phone_number} -> {text}\n")
+
+class WhatsAppAdapter(Notifier):
+    def __init__(self):
+        self.whatsapp_service = ExternalWhatsAppAPI()
+
+    def send(self, message: str, recipient: str):
+        print("[ADAPTER] İç sistem formatı WhatsApp API formatına dönüştürülüyor...")
+        self.whatsapp_service.dispatch_message(recipient, message)
+
+        from notifier_base import Notifier
+
+class NotifierDecorator(Notifier):
+    def __init__(self, wrapped_notifier: Notifier):
+        self._wrapped_notifier = wrapped_notifier
+
+    def send(self, message: str, recipient: str):
+        self._wrapped_notifier.send(message, recipient)
+
+class EncryptedNotifier(NotifierDecorator):
+    def send(self, message: str, recipient: str):
+        print("[ŞİFRELEME] Mesaj içeriği AES-256 algoritmasıyla şifreleniyor...")
+        encrypted_message = f"***ENCRYPTED[{message}]***"
+        super().send(encrypted_message, recipient)
+
+#phase1 de güncellenmesi gereken kısım
+from notifier_factory import NotifierFactory
+from encrypted_notifier import EncryptedNotifier
+
+if __name__ == "__main__":
+    # 1. Adapter Testi
+    wa_notifier = NotifierFactory.get_notifier("whatsapp")
+    wa_notifier.send("Sistem güncellendi.", "+905559998877")
+
+    # 2. Decorator Testi (Email sınıfını bozmadan şifreleme ekliyoruz)
+    base_email_notifier = NotifierFactory.get_notifier("email")
+    secure_email = EncryptedNotifier(base_email_notifier)
+    
+    secure_email.send("Gizli finansal rapor ektedir.", "ceo@proje-team.com")
+
+
+
+Adapter (Faz 2)
+* Nerede Uygulandı:`WhatsAppAdapter` sınıfında.
+* Neden Seçildi: Sisteme dışarıdan dahil edilen `ExternalWhatsAppAPI` sınıfı, bizim `Notifier` arayüzümüze uymuyordu. Kodu bozmamak için araya adaptör yazıldı.
+* Reddedilen Alternatif: Facade reddedildi çünkü amacımız sistemi basitleştirmek değil, zorunlu bir Interface'e uyumlu hale getirmekti.
+
+Decorator (Faz 2)
+* **Nerede Uygulandı: `EncryptedNotifier` sınıfında.
+* **Neden Seçildi: Gönderilen mesajlara şifreleme özelliği eklemek gerekiyordu. Kalıtımkullansaydık her bildirim türü için ayrı alt sınıf (Örn: `EncryptedEmailNotifier`) oluşturmamız gerekecekti. Decorator ile çalışma zamanında (runtime) dinamik yetenek kazandırıldı.
