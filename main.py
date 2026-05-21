@@ -26,7 +26,10 @@ class DiscordNotifier(Notifier):
         print("[BAĞLANTI] Discord Webhook URL'sine istek atılıyor...")
         print(f"[GÖNDERİM] Discord kanalına mesaj atıldı -> {recipient}")
         print(f"[İÇERİK] {message}\n")
-      
+        
+# ==========================================
+# FAZ 2: STRUCTURAL ÖRÜNTÜLER (ADAPTER & DECORATOR)
+# ==========================================
 # --- Adapter Pattern ---
 class ExternalWhatsAppAPI:
     def dispatch_message(self, phone_number: str, text: str):
@@ -67,6 +70,10 @@ class NotifierFactory:
         if not notifier_class:
             raise ValueError(f"[HATA] '{alert_type}' adında bilinmeyen bir bildirim tipi!\n")
         return notifier_class()
+        
+# ==========================================
+# FAZ 3: BEHAVIORAL ÖRÜNTÜLER (STRATEGY & OBSERVER)
+# ==========================================
 
 # --- Strategy Pattern (Açık/Kapalı - OCP Prensibi Gösterimi) ---
 class MessageStrategy(ABC):
